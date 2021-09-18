@@ -1,0 +1,60 @@
+---
+- name: Is sysfs writable?
+  shell: "mount | grep sysfs | egrep '[,(]r[ow][,)]' | grep -o 'r[ow]'"
+  args:
+    warn: False # don't trigger CommandsInsteadOfModulesRule
+  register: sysfs_status
+  changed_when: false
+
+- name: Ensure /etc/sysctl.d exists
+  file:
+    path: /etc/sysctl.d
+    state: directory
+  when: sysfs_status.stdout == "rw"
+
+- name: Activate rp_filter
+  sysctl:
+    name: "{{ item }}"
+    value: 1
+    state: present
+    sysctl_file: /etc/sysctl.d/local.conf
+  loop:
+    - net.ipv4.conf.default.rp_filter
+    - net.ipv4.conf.all.rp_filter
+  when: sysfs_status.stdout == "rw"
+
+- name: Activate TCP SYN cookies
+  sysctl:
+    name: net.ipv4.tcp_syncookies
+    value: 1
+    state: present
+    sysctl_file: /etc/sysctl.d/local.conf
+  when: sysfs_status.stdout == "rw"
+
+- name: Activate secure redirects
+  sysctl:
+    name: net.ipv4.conf.all.secure_redirects
+    value: 1
+    state: present
+    sysctl_file: /etc/sysctl.d/local.conf
+  when: sysfs_status.stdout == "rw"
+
+- name: Deactivate other redirects
+  sysctl:
+    name: "{{ item }}"
+    value: 0
+    state: present
+    sysctl_file: /etc/sysctl.d/local.conf
+  loop:
+    - net.ipv4.conf.all.accept_redirects
+    - net.ipv6.conf.all.accept_redirects
+    - net.ipv4.conf.all.send_redirects
+  when: sysfs_status.stdout == "rw"
+
+- name: Minimize VM swapiness
+  sysctl:
+    name: vm.swappiness
+    value: 1
+    state: present
+    sysctl_file: /etc/sysctl.d/local.conf
+  when: sysfs_status.stdout == "rw"

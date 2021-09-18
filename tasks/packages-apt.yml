@@ -1,0 +1,90 @@
+---
+# Common preprovisioning tasks
+
+- name: Cleanup and upgrade
+  apt:
+    autoclean: yes
+    autoremove: yes
+    cache_valid_time: 3600
+    update_cache: yes
+  tags: packages, common
+
+- name: Install sudo
+  apt:
+    name: sudo
+    state: present
+    dpkg_options: force-confnew
+  tags: packages, base
+
+- name: Install basic tools
+  apt:
+    name:
+      - apt-transport-https
+      - curl
+      - iputils-ping
+      - git
+      - file
+      - software-properties-common
+      - vim
+      - xz-utils
+      - lsof
+      - tmux
+      - unzip
+      - ssl-cert
+      - rsync
+      - fish
+    state: present
+  tags: packages, base
+
+- name: Add basic Python 3 libraries
+  apt:
+    name:
+      - python3-pip
+      - python3-requests
+      - python3-setuptools
+  when: ansible_python['version']['major'] == 3
+  tags: packages, base, python
+
+- name: Install a few useful tools
+  apt:
+    name:
+      - pwgen
+      - ldnsutils
+      - htop
+      - iotop
+      - ioping
+      - knot-dnsutils
+      - knot-host
+      - ethtool
+      - most
+    state: present
+  tags: packages, base
+
+- name: Remove NTP
+  apt:
+    name:
+      - ntp
+      - ntpdate
+    state: absent
+  tags: packages, base
+
+- name: Remove Chrony
+  apt:
+    name:
+      - chrony
+    state: present
+  tags: packages, base
+
+- name: Purge Bind if present
+  apt:
+    name:
+      - bind9
+    state: absent
+  tags: packages, base
+
+- name: Install a DNS resolver
+  apt:
+    name:
+      - unbound
+    state: present
+  tags: packages, base

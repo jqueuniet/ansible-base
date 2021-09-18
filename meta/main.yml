@@ -1,0 +1,20 @@
+---
+dependencies: []
+
+galaxy_info:
+  author: jqueuniet
+  description: Base system setup for Linux
+  license: "license (MIT)"
+  min_ansible_version: 2.11
+  platforms:
+    - name: Debian
+      versions:
+        - bullseye
+    - name: Ubuntu
+      versions:
+        - focal
+  galaxy_tags:
+    - linux
+    - base
+
+allow_duplicates: yes

@@ -1,0 +1,28 @@
+---
+- name: Gather os specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_distribution|lower }}-{{ ansible_distribution_version|lower|replace('/', '_') }}.yml"
+        - "{{ ansible_distribution|lower }}-{{ ansible_distribution_release }}.yml"
+        - "{{ ansible_distribution|lower }}-{{ ansible_distribution_major_version|lower|replace('/', '_') }}.yml"
+        - "{{ ansible_lsb.id|lower }}.yml"
+        - "{{ ansible_distribution|lower }}.yml"
+        - "{{ ansible_os_family|lower }}.yml"
+      skip: true
+  tags: vars
+
+- name: Turn off systemd-networkd
+  include_tasks: systemd.yml
+  when: ansible_service_mgr == "systemd"
+
+- name: Install packages for Debian-like distributions
+  include_tasks: packages-apt.yml
+  when: ansible_pkg_mgr == "apt"
+
+- include: sysctl.yml
+- include: misc.yml
+
+- name: Setup unattended-upgrade for Debian-like distributions
+  include_tasks: unattended-upgrades.yml
+  when: ansible_pkg_mgr == "apt"

@@ -1,0 +1,53 @@
+---
+
+- name: Ensures wanted locales are present
+  locale_gen:
+    name: "{{ item }}"
+  loop: "{{ base_locales }}"
+
+- name: Ensure hostname is set correctly in /etc/hostname
+  copy:
+    dest: /etc/hostname
+    content: "{{ inventory_host }}\n"
+
+- name: Set the hostname for the current boot
+  hostname:
+    name: "{{ inventory_host }}"
+
+- name: Create SSH/GPG user dirs
+  file:
+    path: "{{ ansible_user_dir }}/{{ item }}"
+    state: directory
+    mode: 0700
+  loop:
+    - .gnupg
+    - .ssh
+    - .config
+
+- name: Change root shell
+  user:
+    name: root
+    shell: /usr/bin/fish
+
+- name: Change default editor to vim
+  alternatives:
+    name: vim
+    path: /usr/bin/vim.basic
+  when: ansible_os_family == "Debian"
+
+- name: Change default pager to most
+  alternatives:
+    name: pager
+    path: /usr/bin/most
+  when: ansible_os_family == "Debian"
+
+- name: Install a relevant vimrc for root
+  copy:
+    src: vimrc
+    dest: /root/.vimrc
+
+- name: Get public IP if necessary
+  ipify_facts:
+  when: (ansible_default_ipv4.address | ipsubnet(16) == '192.168.0.0/16') or
+        (ansible_default_ipv4.address | ipsubnet(8) == '10.0.0.0/8') or
+        (ansible_default_ipv4.address | ipsubnet(12) == '172.16.0.0/12')

@@ -1,0 +1,14 @@
+---
+- name: restart systemd-resolved
+  become: true
+  systemd:
+    name: systemd-resolved
+    state: restarted
+  when: ansible_service_mgr == "systemd"
+
+- name: restart unattended-upgrades
+  become: true
+  systemd:
+    name: unattended-upgrades
+    state: restarted
+  when: ansible_service_mgr == "systemd"

@@ -1,0 +1,13 @@
+infra_environment: prod
+
+base_locales:
+  - en_US.UTF-8
+  - en_GB.UTF-8
+  - fr_FR.UTF-8
+
+unattended_upgrades_package_blacklist: []
+unattended_upgrades_email: root
+unattended_upgrades_email_on_error: true
+unattended_upgrades_remove_unused: true
+unattended_upgrades_auto_reboot: true
+unattended_upgrades_reboot_time: "02:00"

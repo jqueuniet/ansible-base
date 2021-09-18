@@ -1,0 +1,3 @@
+unattended_upgrades_origins:
+  - "origin=Raspbian,codename=${distro_codename},label=Raspbian"
+  - "origin=Raspberry Pi Foundation,codename=${distro_codename},label=Raspberry Pi Foundation"

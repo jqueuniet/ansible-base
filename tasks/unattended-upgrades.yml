@@ -1,0 +1,28 @@
+---
+# Setup unattended upgrades
+
+- name: Ensure unattended-upgrades is installed
+  apt:
+    name: unattended-upgrades
+    state: present
+    dpkg_options: force-confnew
+  tags: packages, base
+
+- name: Install unattended-upgrades configuration file
+  template:
+    src: 50unattended-upgrades.j2
+    dest: /etc/apt/apt.conf.d/50unattended-upgrades
+  notify: restart unattended-upgrades
+
+- name: Install unattended-upgrades schedule file
+  template:
+    src: 10periodic.j2
+    dest: /etc/apt/apt.conf.d/10periodic
+  notify: restart unattended-upgrades
+
+- name: Ensure unattended-upgrades is started and enabled
+  systemd:
+    name: unattended-upgrades
+    state: started
+    enabled: yes
+  when: ansible_service_mgr == "systemd"

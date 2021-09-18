@@ -1,0 +1,36 @@
+---
+# systemd tweaking
+
+- name: Turn off the stub listener
+  ini_file:
+    path: /etc/systemd/resolved.conf
+    section: Resolve
+    option: DNSStubListener
+    value: "no"
+  notify:
+    - restart systemd-resolved
+  tags: systemd, common
+
+- name: check the current resolv.conf
+  stat:
+    path: /etc/resolv.conf
+  register: resolvconf
+
+- name: Remove the symlink to systemd resolv.conf
+  file:
+    path: /etc/resolv.conf
+    state: absent
+  when:
+    - resolvconf.islnk is defined
+    - resolvconf.islnk
+    - resolvconf.lnk_target == "/lib/systemd/resolv.conf"
+
+- name: Link a working resolv.conf
+  file:
+    path: /etc/resolv.conf
+    state: link
+    src: /run/systemd/resolve/resolv.conf
+  when:
+    - resolvconf.islnk is defined
+    - resolvconf.islnk
+    - resolvconf.lnk_target == "/lib/systemd/resolv.conf"
