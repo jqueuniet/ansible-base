@@ -8,11 +8,11 @@
 - name: Ensure hostname is set correctly in /etc/hostname
   copy:
     dest: /etc/hostname
-    content: "{{ inventory_host }}\n"
+    content: "{{ inventory_hostname }}\n"
 
 - name: Set the hostname for the current boot
   hostname:
-    name: "{{ inventory_host }}"
+    name: "{{ inventory_hostname }}"
 
 - name: Create SSH/GPG user dirs
   file:
