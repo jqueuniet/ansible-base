@@ -19,7 +19,6 @@
 - name: Install basic tools
   apt:
     name:
-      - apt-transport-https
       - curl
       - iputils-ping
       - git
